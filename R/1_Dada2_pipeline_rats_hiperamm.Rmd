@@ -82,7 +82,10 @@ rownames(asvmat)<-NULL
 rownames(asvmat) <- paste0("ASV", 1:nrow(asvmat))
 #colnames(asvmat) <- paste0("Sample", 1:ncol(asvmat)) #keep original sample ID
 head(asvmat)
-write.csv(asvmat, "/fast/AG_Forslund/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/output/Tables/otu_table.csv", row.names = F, col.names = F)
+library(repmod)
+make_csv_table(asvmat, "/fast/AG_Forslund/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/outputs/Tables/otu_table_names", info = "otu_table")
+make_csv_table(seqtab.nochim, "/fast/AG_Forslund/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/outputs/Tables/otu_table_with_seqs", info = "otu_table_with_seqs")
+write.csv(asvmat, "/fast/AG_Forslund/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/outputs/Tables/otu_table.csv", row.names = F, col.names = F)
 
 ##Get count of ASVs detected by sample
 asv.sample<- as.data.frame(asvmat)
@@ -97,6 +100,7 @@ asv.sample<- as.matrix(test)
 colnames(asv.sample)<- "ASVs_dada2"
 rm(test,asv, i)
 #Important not to loose the connection between the seq and the ASVs
+make_csv_table(asv.names, "/fast/AG_Forslund/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/outputs/Tables/asv_table_with_seqs", info = "asv_table_with_seqs")
 write.csv(asv.names, "/fast/AG_Forslund/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/outputs/Tables/asv_table.csv", row.names = F, col.names = F)
 
 ###Track reads through the pipeline 
@@ -120,6 +124,13 @@ taxa.print <- taxa # Removing sequence rownames for display only
 rownames(taxa.print) <- NULL
 head(taxa.print)
 
+##Create an Taxa matrix with ASV as rows and taxonomic level as columns
+taxa_asvs <- as.data.frame(taxa) # Removing sequence rownames for display only
+rownames(taxa_asvs) <- NULL
+rownames(taxa_asvs) <- paste0("ASV", 1:nrow(asv.names))
+head(taxa_asvs)
+make_csv_table(taxa_asvs, "/fast/AG_Forslund/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/outputs/Tables/tax_table_names", info = "tax_table_n")
+make_csv_table(taxa, "/fast/AG_Forslund/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/outputs/Tables/tax_table_with_seqs", info = "tax_table_with_seqs")
 
 library(phyloseq); packageVersion("phyloseq")
 library(ggplot2); packageVersion("ggplot2")
