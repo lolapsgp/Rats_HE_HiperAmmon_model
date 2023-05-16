@@ -132,6 +132,34 @@ head(taxa_asvs)
 make_csv_table(taxa_asvs, "/fast/AG_Forslund/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/outputs/Tables/tax_table_names", info = "tax_table_n")
 make_csv_table(taxa, "/fast/AG_Forslund/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/outputs/Tables/tax_table_with_seqs", info = "tax_table_with_seqs")
 
+
+##Transform seqtab.nochim to fasta file 
+  library(DECIPHER); packageVersion("DECIPHER")
+  ##Create a DNAString set from the ASVs
+  dna <- DNAStringSet(getSequences(seqtab.nochim))
+  names(dna)<- paste0("ASV", 1:length(dna)) ##Give short names to each sequence
+ writeXStringSet(dna, "/fast/AG_Forslund/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/outputs/ASV.fasta") ##Export fasta seq
+  
+  ##Create a Phylogenetic tree
+  library(phangorn)
+  Align16S<- AlignSeqs(dna, anchor= NA, verbose= FALSE) ##Alignment
+  
+  phangAlign16S <- phyDat(as(Align16S, "matrix"), type="DNA")
+  dm16S <- dist.ml(phangAlign16S) ## Distance matrix
+  treeNJ16S <- NJ(dm16S) # Note, tip order != sequence order
+  plot(treeNJ16S, type= "unrooted", use.edge.length= FALSE, no.margin= TRUE, show.tip.label= TRUE) ##Neighbor-Joining tree
+  fit1 <- pml(treeNJ16S, data=phangAlign16S)
+  fitGTR16S <- update(fit1, k=4, inv=0.2)
+  fitGTR16S <- optim.pml(fitGTR16S, model="GTR", optInv=TRUE, optGamma=TRUE,
+                         rearrangement = "stochastic", control = pml.control(trace = 0))
+  plot(fitGTR16S, type= "unrooted", use.edge.length= FALSE, no.margin= TRUE, show.tip.label= FALSE)
+  
+  tree<- fitGTR16S$tree
+
+saveRDS(fitGTR16S, "/fast/AG_Forslund/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/outputs/phylo_tree.rds")  
+saveRDS(seqtab.nochim, "/fast/AG_Forslund/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/outputs/seqtab.nochim.ratshiperammon.Rds") 
+
+
 library(phyloseq); packageVersion("phyloseq")
 library(ggplot2); packageVersion("ggplot2")
 theme_set(theme_bw())
