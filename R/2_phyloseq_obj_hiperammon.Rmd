@@ -1,0 +1,64 @@
+---
+title: "2_phyloseq_obj_hiperammon"
+output: html_document
+date: "2023-06-19"
+---
+
+```{r libraries}
+library(phyloseq); packageVersion("phyloseq")
+library(ggplot2); packageVersion("ggplot2")
+library(readr)
+library(readxl)
+library(readr)
+
+phylo_tree <- readRDS("~/Documents/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/outputs/phylo_tree.rds")
+otu_table_seq <-seqtab.nochim.humans <- readRDS("~/Documents/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/outputs/seqtab.nochim.ratshiperammon.Rds")
+View(otu_table_seq)
+asvmat <- t(otu_table_seq) #Removing sequence rownames for display only
+asv.names <- as.data.frame(rownames(asvmat))
+rownames(asv.names) <- paste0("ASV", 1:nrow(asv.names))
+rownames(asvmat)<-NULL
+asvmat <- as.data.frame(asvmat)
+rownames(asvmat) <- paste0("ASV", 1:nrow(asvmat))
+#colnames(asvmat) <- paste0("Sample", 1:ncol(asvmat)) #keep original sample ID
+head(asvmat)
+
+tax_table_names <- read_delim("~/Documents/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/outputs/Tables/tax_table_names.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+View(tax_table_names)
+metadata_hiper <- read_excel("~/Documents/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/metadata_hiperammon.xlsx")
+View(metadata_hiper)
+
+otu_ok <- as.data.frame(asvmat)
+
+tax_table_names <- as.data.frame(tax_table_names[-c(1978), ])
+
+rownames(tax_table_names) <- tax_table_names$...1
+tax_table<-tax_table_names
+tax_table$Species<- ifelse(is.na(tax_table$Species...8) == TRUE, tax_table$Species...9, ifelse(is.na(tax_table$Species...8) == FALSE, tax_table$Species...8, "NA"))
+tax_table_ok <- subset(tax_table, select = -c(Species...8, Species...9, ...1))
+
+OTU = otu_table(otu_ok, taxa_are_rows = TRUE)
+ TAX = tax_table(as.matrix(tax_table_ok))
+ SAMPLE = sample_data(metadata_hiper)
+ TREE = tree<- phylo_tree$tree
+ 
+rownames(SAMPLE) <-metadata_hiper$SampleID
+
+ps <- phyloseq(OTU, TAX, SAMPLE, TREE)
+ps
+saveRDS(ps, "~/Documents/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/outputs/ps.Rds")  
+saveRDS(otu_ok, "~/Documents/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/outputs/otu_ok.Rds")  
+saveRDS(tax_table_ok, "~/Documents/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/outputs/tax_table_ok.Rds") 
+
+#Rarefaction curve
+#Imp not to include the neg control
+library(vegan)
+S <- specnumber(t(otu_ok)) # observed number of species
+(raremax <- min(rowSums(t(otu_ok))))
+Srare <- rarefy(t(otu_ok), raremax)
+plot(S, Srare, xlab = "Observed No. of Species", ylab = "Rarefied No. of Species")
+abline(0, 1)
+rarecurve(t(otu_ok), step = 20, sample = raremax, col = "black", cex = 0.6)
+
+```
