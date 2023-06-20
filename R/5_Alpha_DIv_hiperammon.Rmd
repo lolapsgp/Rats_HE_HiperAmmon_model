@@ -4,26 +4,81 @@ output: html_document
 date: "2023-06-19"
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r libraries and objects}
+library("phyloseq"); packageVersion("phyloseq")
+library(readr)
+library(data.table)
+library(ggpubr)
+library("ggplot2"); packageVersion("ggplot2")
+ps_0 <- readRDS("~/Documents/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/outputs/ps_0.Rds")
+```
+#Alpha div plots
+
+Alpha-diversity is calculated on the raw data, here data_otu or data_phylo if you are using phyloseq.
+It is important to not use filtered data because many richness estimates are modeled on singletons and doubletons in the occurrence table. So, you need to leave them in the dataset if you want a meaningful estimate.
+Moreover, we usually not using normalized data because we want to assess the diversity on the raw data and we are not comparing samples to each other but only assessing diversity within each sample.
+
+```{r Counts}
+reads_per_sample <- as.matrix(rowSums(t(as.data.frame(otu_table(ps_0)))))
+reads_per_sample 
 ```
 
-## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+```{r Alpha Diversity}
+newSTorder = c("Control", "Hiperammonemic")
+my_comparisons <- list( c("Control", "Hiperammonemic"))
+library(ggsignif)
+#Observed
+pObserved <- plot_richness(ps_0, x="Group", measures=c("Observed"))+
+    geom_boxplot() + 
+    geom_jitter(aes(color = Group), position = position_jitterdodge(dodge.width = 0.65, jitter.width = 0.1, jitter.height = 0.1))+
+    theme_classic() + theme( legend.position = "none", strip.background = element_blank(), axis.text.x.bottom = element_text(angle = 0), axis.text.x = element_text(size = 14), axis.title.y = element_blank()) + 
+    stat_compare_means(label= "p.signif", comparisons = my_comparisons, label.y = c(400))
+#Re-arranging the order of the figure, controls first
+pObserved$data$Group <- as.character(pObserved$data$Group)
+pObserved$data$Group <- factor(pObserved$data$Group, levels=newSTorder)
+pObserved$layers<-pObserved$layers[-1]
+pObserved+ labs(color = "Group")
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+#Shannon
+pShannon <- plot_richness(ps_0, x="Group", measures=c("Shannon")) +
+  geom_boxplot(outlier.shape = NA) + 
+    geom_jitter(aes(color = Group), position = position_jitterdodge(dodge.width = 0.65, jitter.width = 0.1, jitter.height = 0.1))+
+  theme_classic() + theme(legend.position = "none",strip.background = element_blank(), axis.text.x.bottom = element_text(angle = 0), axis.text.x = element_text(size = 14), axis.title.y = element_blank()) +
+    stat_compare_means(label= "p.signif", comparisons = my_comparisons, label.y = c(4.7))
+#Re-arranging the order of the figure, controls first
+pShannon$data$Group <- as.character(pShannon$data$Group)
+pShannon$data$Group <- factor(pShannon$data$Group, levels=newSTorder)
+pShannon$layers<-pShannon$layers[-1]
+pShannon+ labs(color = "Group")
 
-```{r cars}
-summary(cars)
+
+#Chao1
+pChao <- plot_richness(ps_0, x="Group", measures=c("Chao1")) +
+  geom_boxplot(outlier.shape = NA) + 
+    geom_jitter(aes(color = Group), position = position_jitterdodge(dodge.width = 0.65, jitter.width = 0.1, jitter.height = 0.1))+
+  theme_classic() + theme(legend.position = "none", strip.background = element_blank(), axis.text.x.bottom = element_text(angle = 0), axis.text.x = element_text(size = 14), axis.title.y = element_blank()) +
+    stat_compare_means(label= "p.signif", comparisons = my_comparisons, label.y = c(405))
+#Re-arranging the order of the figure, controls first
+pChao$data$Group <- as.character(pChao$data$Group)
+pChao$data$Group <- factor(pChao$data$Group, levels=newSTorder)
+pChao$layers<-pChao$layers[-1]
+pChao+ labs(color = "Group")
+
+#Fisher
+pFisher <- plot_richness(ps_0, x="Group", measures=c("Fisher")) +
+  geom_boxplot(outlier.shape = NA) +geom_jitter(aes(color = Group), position = position_jitterdodge(dodge.width = 0.65, jitter.width = 0.1, jitter.height = 0.1))+
+  theme_classic() + theme(legend.position = "none", strip.background = element_blank(), axis.text.x.bottom = element_text(angle = 0), axis.text.x = element_text(size = 14), axis.title.y = element_text(size = 16)) +
+    stat_compare_means(label= "p.signif", comparisons = my_comparisons, label.y = c(58))
+pFisher$data$Group <- as.character(pFisher$data$Group)
+pFisher$data$Group <- factor(pFisher$data$Group, levels=newSTorder)
+pFisher$layers<-pFisher$layers[-1]
+pFisher+ labs(color = "Group")
+
+library(gridExtra)
+library(grid)
+library(ggplot2)
+library(lattice)
+grid.arrange(pFisher, pChao, pShannon, pObserved,nrow = 1)
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
