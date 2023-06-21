@@ -1,0 +1,119 @@
+---
+title: "7_metadeconfoundR"
+output: html_document
+date: "2023-06-21"
+---
+
+#Data
+```{r MetadeconfoundR heatmaps}
+library(devtools)
+install_github("TillBirkner/metadeconfoundR")
+
+ps_comp<- readRDS("~/Documents/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/outputs/ps_comp.Rds")
+library(readxl)
+metadata_hiper <- data.frame(sample_data(ps_comp))
+View(metadata_hiper)
+```
+
+```{r Changing names ASVs}
+library(tidyr)
+library(tibble)
+library(purrr)
+require(phyloseq)
+require(tidyverse)
+require(magrittr)
+
+
+get_latest_annotation <- function(phyloseq_obj) {
+  tax_table <- phyloseq_obj@tax_table %>%
+    as.data.frame() %>%
+    rownames_to_column('ASV') %>%
+    as_tibble() %>%
+    tidyr::gather('Rank', 'Value', -ASV) %>%
+    nest(data = -ASV) %>%
+    mutate(TaxaID = map_chr(data, function(x) {
+      x %>%
+        dplyr::filter(!is.na(Value)) %>%
+        magrittr::use_series(Value) %>%
+        tail(1)
+    })) %>%
+    mutate(TaxaUp = map_chr(data, function(x) {
+      x %>%
+        dplyr::filter(!is.na(Value)) %>%
+        magrittr::use_series(Value) %>%
+        tail(2) %>% head(1)
+    })) %>%
+    mutate(TaxaID = paste(ASV, TaxaID)) %>%
+    dplyr::select(-c(data, TaxaUp))
+  
+  return(tax_table)
+}
+
+##Usage latest_annotations <- get_latest_annotation(phyloseq_obj)
+latest_annotations <- get_latest_annotation(ps_comp)
+latest_annotations<-as.data.frame(latest_annotations)
+short_names<-as.data.frame(otu_table(ps_comp))
+rownames(short_names)<-latest_annotations$TaxaID
+```
+
+```{r Changing names ASVs long}
+# generate a vector containing the full taxonomy path for all OTUs
+wholetax <- do.call(paste, c(as.data.frame(tax_table(ps_comp))
+                             [c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species")], 
+                             sep = "__"))  # to distinguish from "_" within tax ranks
+
+# turn the otu_table into a data.frame
+otu_export <- as.data.frame(t(otu_table(ps_comp)))
+tmp <- names(otu_export)
+
+# paste wholetax and OTU_ids together
+for(i in 1:length(tmp)){
+    names(tmp)[i] = paste(wholetax[i], tmp[i], sep = "__")
+}
+
+# overwrite old names
+names(otu_export) <- names(tmp)
+otu_export<-t(otu_export)
+
+head(otu_export)[5]
+```
+
+##MetadeconfoundR
+```{r MetadeconfoundR heatmaps}
+library(metadeconfoundR)
+library(dplyr)
+ps.rel<-ps_comp
+latest_annotations <- get_latest_annotation(ps.rel)
+latest_annotations<-as.data.frame(latest_annotations)
+short_names<-as.data.frame(otu_table(ps.rel))
+rownames(short_names)<-latest_annotations$TaxaID
+Meta_Species <- t(short_names) 
+
+metadata_hiper_R <- subset(metadata_hiper, select = -c(SampleID, Sample_type))
+metadata_hiper_R <- metadata_hiper_R %>% mutate(Group = ifelse(Group=="Hiperammonemic",1,0))
+metadata_hiper_R <- as.data.frame(metadata_hiper_R)
+rownames(metadata_hiper_R) <- (metadata_hiper$SampleID)
+
+# check correct ordering
+all(rownames(metadata_hiper_R) == rownames(Meta_Species))
+## [1] TRUE
+all(order(rownames(metadata_hiper_R)) == order(rownames(Meta_Species)))
+## [1] TRUE
+Meta_Species<- as.data.frame(Meta_Species)
+Output1 <- MetaDeconfound(featureMat = as.data.frame(Meta_Species),
+                                 metaMat = as.data.frame(metadata_hiper_R), nnodes = 4)
+                                 
+Output2_batch <- MetaDeconfound(featureMat = as.data.frame(Meta_Species),
+                                     metaMat = as.data.frame(metadata_hiper_R), nnodes = 4, randomVar = list("+ (1|Batch)",
+                                                                                        c("Batch")))
+View(Output1)
+View(Output2_batch)
+
+left <- BuildHeatmap(Output1)
+right <- BuildHeatmap(Output2_batch)
+plot(left)
+plot(right)
+saveRDS(Output1, "/fast/AG_Forslund/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/output/Output1_metadec.Rds")
+saveRDS(Output2_batch, "/fast/AG_Forslund/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/output/Output2_batch_all.Rds")
+
+```

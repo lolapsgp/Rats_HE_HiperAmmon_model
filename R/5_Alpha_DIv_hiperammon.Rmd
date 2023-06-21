@@ -12,7 +12,7 @@ library(ggpubr)
 library("ggplot2"); packageVersion("ggplot2")
 ps_0 <- readRDS("~/Documents/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/outputs/ps_0.Rds")
 ```
-#Alpha div plots
+#Alpha div plots groups
 
 Alpha-diversity is calculated on the raw data, here data_otu or data_phylo if you are using phyloseq.
 It is important to not use filtered data because many richness estimates are modeled on singletons and doubletons in the occurrence table. So, you need to leave them in the dataset if you want a meaningful estimate.
@@ -82,3 +82,61 @@ library(lattice)
 grid.arrange(pFisher, pChao, pShannon, pObserved,nrow = 1)
 ```
 
+#Alpha div plots batches
+```{r Alpha Diversity batch}
+newSTorder = c("B1", "B2", "B3")
+my_comparisons <- list( c("B1", "B2"), c("B1", "B3"), c("B2", "B3"))
+library(ggsignif)
+#Observed
+pObserved <- plot_richness(ps_0, x="Batch", measures=c("Observed"))+
+  geom_boxplot() + 
+  geom_jitter(aes(color = Batch), position = position_jitterdodge(dodge.width = 0.65, jitter.width = 0.1, jitter.height = 0.1))+
+  theme_classic() + theme( legend.position = "none", strip.background = element_blank(), axis.text.x.bottom = element_text(angle = 0), axis.text.x = element_text(size = 14), axis.title.y = element_blank()) + 
+  stat_compare_means(label= "p.signif", comparisons = my_comparisons, label.y = c(390, 405, 390))
+#Re-arranging the order of the figure, controls first
+pObserved$data$Batch <- as.character(pObserved$data$Batch)
+pObserved$data$Batch <- factor(pObserved$data$Batch, levels=newSTorder)
+pObserved$layers<-pObserved$layers[-1]
+pObserved+ labs(color = "Batch")
+
+#Shannon
+pShannon <- plot_richness(ps_0, x="Batch", measures=c("Shannon")) +
+  geom_boxplot(outlier.shape = NA) + 
+  geom_jitter(aes(color = Batch), position = position_jitterdodge(dodge.width = 0.65, jitter.width = 0.1, jitter.height = 0.1))+
+  theme_classic() + theme(legend.position = "none",strip.background = element_blank(), axis.text.x.bottom = element_text(angle = 0), axis.text.x = element_text(size = 14), axis.title.y = element_blank()) +
+  stat_compare_means(label= "p.signif", comparisons = my_comparisons, label.y = c(4.7, 4.8, 4.7))
+#Re-arranging the order of the figure, controls first
+pShannon$data$Batch <- as.character(pShannon$data$Batch)
+pShannon$data$Batch <- factor(pShannon$data$Batch, levels=newSTorder)
+pShannon$layers<-pShannon$layers[-1]
+pShannon+ labs(color = "Batch")
+
+
+#Chao1
+pChao <- plot_richness(ps_0, x="Batch", measures=c("Chao1")) +
+  geom_boxplot(outlier.shape = NA) + 
+  geom_jitter(aes(color = Batch), position = position_jitterdodge(dodge.width = 0.65, jitter.width = 0.1, jitter.height = 0.1))+
+  theme_classic() + theme(legend.position = "none", strip.background = element_blank(), axis.text.x.bottom = element_text(angle = 0), axis.text.x = element_text(size = 14), axis.title.y = element_blank()) +
+  stat_compare_means(label= "p.signif", comparisons = my_comparisons, label.y = c(390, 405, 390))
+#Re-arranging the order of the figure, controls first
+pChao$data$Batch <- as.character(pChao$data$Batch)
+pChao$data$Batch <- factor(pChao$data$Batch, levels=newSTorder)
+pChao$layers<-pChao$layers[-1]
+pChao+ labs(color = "Batch")
+
+#Fisher
+pFisher <- plot_richness(ps_0, x="Batch", measures=c("Fisher")) +
+  geom_boxplot(outlier.shape = NA) +geom_jitter(aes(color = Batch), position = position_jitterdodge(dodge.width = 0.65, jitter.width = 0.1, jitter.height = 0.1))+
+  theme_classic() + theme(legend.position = "none", strip.background = element_blank(), axis.text.x.bottom = element_text(angle = 0), axis.text.x = element_text(size = 14), axis.title.y = element_text(size = 16)) +
+  stat_compare_means(label= "p.signif", comparisons = my_comparisons, label.y = c(57, 60, 57))
+pFisher$data$Batch <- as.character(pFisher$data$Batch)
+pFisher$data$Batch <- factor(pFisher$data$Batch, levels=newSTorder)
+pFisher$layers<-pFisher$layers[-1]
+pFisher+ labs(color = "Batch")
+
+library(gridExtra)
+library(grid)
+library(ggplot2)
+library(lattice)
+grid.arrange(pFisher, pChao, pShannon, pObserved,nrow = 1)
+```

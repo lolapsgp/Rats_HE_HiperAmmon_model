@@ -39,10 +39,9 @@ sdt = data.table(as(sample_data(ps_filtered1), "data.frame"),
 pSeqDepth = ggplot(sdt, aes(TotalReads)) + geom_histogram() + ggtitle("Sequencing Depth")
 pSeqDepth
 pSeqDepth + facet_wrap(~Group)
+pSeqDepth + facet_wrap(~Batch)
 ```
 
-#1st step filtering(=0 all arrive to saturation)
-ps_filtered1<-subset_samples(ps_filtered1, SampleID != "PC249_S31")
 
 #```{r Removing the one that does not arrive to saturation (=0 all arrive to saturation)}
 #library(vegan)
@@ -63,6 +62,13 @@ ggplot(sdt, aes(Quant_DNA, TotalReads, color = as.factor(Group))) +
     ggtitle("Sequencing Depth vs. DNAquant") +
     scale_y_log10() +
     facet_grid(Group ~ .)
+
+ggplot(sdt, aes(Quant_DNA, TotalReads, color = as.factor(Batch))) + 
+    geom_point(size = 5) + 
+    geom_smooth(method = lm) +
+    ggtitle("Sequencing Depth vs. DNAquant") +
+    scale_y_log10() +
+    facet_grid(Batch ~ .)
 ```
 
 ```{r tree plot}
