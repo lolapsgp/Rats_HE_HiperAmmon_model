@@ -66,7 +66,7 @@ NewTAX<-tax_table(ps_filtered2)
 OTU = otu_table(OTU_data_t, taxa_are_rows = TRUE)
 TAX = NewTAX
 SAMPLE <- sample_data(metadata_hiper)
-phylo_tree <- readRDS("~/Documents/Lola/CIPF_2018/Rats_HE_CCL4model/output/phylo_tree.rds")
+phylo_tree <- readRDS("~/Documents/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/outputs/phylo_tree.rds")
 TREE = phylo_tree$tree
 
 rownames(SAMPLE) <-metadata_hiper$SampleID
@@ -74,7 +74,7 @@ rownames(SAMPLE) <-metadata_hiper$SampleID
  # merge the data
  ps_limma <- phyloseq(OTU, TAX, SAMPLE, TREE)
  ps_limma
-saveRDS(ps_limma,"~/Documents/Lola/CIPF_2018/Rats_HE_CCL4model/output/ps_limma.Rds")
+saveRDS(ps_limma,"~/Documents/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/outputs/ps_limma.Rds")
 ```
 
 ###PCoA limma remove batch effect: Group and batch
