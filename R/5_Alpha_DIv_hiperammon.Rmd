@@ -32,8 +32,8 @@ library(ggsignif)
 pObserved <- plot_richness(ps_0, x="Group", measures=c("Observed"))+
     geom_boxplot() + 
     geom_jitter(aes(color = Group), position = position_jitterdodge(dodge.width = 0.65, jitter.width = 0.1, jitter.height = 0.1))+
-    theme_classic() + theme( legend.position = "none", strip.background = element_blank(), axis.text.x.bottom = element_text(angle = 0), axis.text.x = element_text(size = 14), axis.title.y = element_blank()) + 
-    stat_compare_means(label= "p.signif", comparisons = my_comparisons, label.y = c(400))
+    theme_classic() + theme( legend.position = "none", strip.background = element_blank(), axis.text.x.bottom = element_text(angle = 0), axis.text.x = element_text(size = 12), axis.title.y = element_text(size = 14)) + 
+    stat_compare_means(label= "p.signif", comparisons = my_comparisons)
 #Re-arranging the order of the figure, controls first
 pObserved$data$Group <- as.character(pObserved$data$Group)
 pObserved$data$Group <- factor(pObserved$data$Group, levels=newSTorder)
@@ -44,8 +44,8 @@ pObserved+ labs(color = "Group")
 pShannon <- plot_richness(ps_0, x="Group", measures=c("Shannon")) +
   geom_boxplot(outlier.shape = NA) + 
     geom_jitter(aes(color = Group), position = position_jitterdodge(dodge.width = 0.65, jitter.width = 0.1, jitter.height = 0.1))+
-  theme_classic() + theme(legend.position = "none",strip.background = element_blank(), axis.text.x.bottom = element_text(angle = 0), axis.text.x = element_text(size = 14), axis.title.y = element_blank()) +
-    stat_compare_means(label= "p.signif", comparisons = my_comparisons, label.y = c(4.7))
+  theme_classic() + theme(legend.position = "none",strip.background = element_blank(), axis.text.x.bottom = element_text(angle = 0), axis.text.x = element_text(size = 12), axis.title.y = element_text(size = 14)) +
+    stat_compare_means(label= "p.signif", comparisons = my_comparisons)
 #Re-arranging the order of the figure, controls first
 pShannon$data$Group <- as.character(pShannon$data$Group)
 pShannon$data$Group <- factor(pShannon$data$Group, levels=newSTorder)
@@ -57,8 +57,8 @@ pShannon+ labs(color = "Group")
 pChao <- plot_richness(ps_0, x="Group", measures=c("Chao1")) +
   geom_boxplot(outlier.shape = NA) + 
     geom_jitter(aes(color = Group), position = position_jitterdodge(dodge.width = 0.65, jitter.width = 0.1, jitter.height = 0.1))+
-  theme_classic() + theme(legend.position = "none", strip.background = element_blank(), axis.text.x.bottom = element_text(angle = 0), axis.text.x = element_text(size = 14), axis.title.y = element_blank()) +
-    stat_compare_means(label= "p.signif", comparisons = my_comparisons, label.y = c(405))
+  theme_classic() + theme(legend.position = "none", strip.background = element_blank(), axis.text.x.bottom = element_text(angle = 0), axis.text.x = element_text(size = 12), axis.title.y = element_text(size = 14)) +
+    stat_compare_means(label= "p.signif", comparisons = my_comparisons)
 #Re-arranging the order of the figure, controls first
 pChao$data$Group <- as.character(pChao$data$Group)
 pChao$data$Group <- factor(pChao$data$Group, levels=newSTorder)
@@ -68,8 +68,8 @@ pChao+ labs(color = "Group")
 #Fisher
 pFisher <- plot_richness(ps_0, x="Group", measures=c("Fisher")) +
   geom_boxplot(outlier.shape = NA) +geom_jitter(aes(color = Group), position = position_jitterdodge(dodge.width = 0.65, jitter.width = 0.1, jitter.height = 0.1))+
-  theme_classic() + theme(legend.position = "none", strip.background = element_blank(), axis.text.x.bottom = element_text(angle = 0), axis.text.x = element_text(size = 14), axis.title.y = element_text(size = 16)) +
-    stat_compare_means(label= "p.signif", comparisons = my_comparisons, label.y = c(58))
+  theme_classic() + theme(legend.position = "none", strip.background = element_blank(), axis.text.x.bottom = element_text(angle = 0), axis.text.x = element_text(size = 12), axis.title.y = element_text(size = 14)) +
+    stat_compare_means(label= "p.signif", comparisons = my_comparisons)
 pFisher$data$Group <- as.character(pFisher$data$Group)
 pFisher$data$Group <- factor(pFisher$data$Group, levels=newSTorder)
 pFisher$layers<-pFisher$layers[-1]
@@ -92,7 +92,7 @@ pObserved <- plot_richness(ps_0, x="Batch", measures=c("Observed"))+
   geom_boxplot() + 
   geom_jitter(aes(color = Batch), position = position_jitterdodge(dodge.width = 0.65, jitter.width = 0.1, jitter.height = 0.1))+
   theme_classic() + theme( legend.position = "none", strip.background = element_blank(), axis.text.x.bottom = element_text(angle = 0), axis.text.x = element_text(size = 14), axis.title.y = element_blank()) + 
-  stat_compare_means(label= "p.signif", comparisons = my_comparisons, label.y = c(390, 405, 390))
+  stat_compare_means(label= "p.signif", comparisons = my_comparisons)
 #Re-arranging the order of the figure, controls first
 pObserved$data$Batch <- as.character(pObserved$data$Batch)
 pObserved$data$Batch <- factor(pObserved$data$Batch, levels=newSTorder)
@@ -104,7 +104,7 @@ pShannon <- plot_richness(ps_0, x="Batch", measures=c("Shannon")) +
   geom_boxplot(outlier.shape = NA) + 
   geom_jitter(aes(color = Batch), position = position_jitterdodge(dodge.width = 0.65, jitter.width = 0.1, jitter.height = 0.1))+
   theme_classic() + theme(legend.position = "none",strip.background = element_blank(), axis.text.x.bottom = element_text(angle = 0), axis.text.x = element_text(size = 14), axis.title.y = element_blank()) +
-  stat_compare_means(label= "p.signif", comparisons = my_comparisons, label.y = c(4.7, 4.8, 4.7))
+  stat_compare_means(label= "p.signif", comparisons = my_comparisons)
 #Re-arranging the order of the figure, controls first
 pShannon$data$Batch <- as.character(pShannon$data$Batch)
 pShannon$data$Batch <- factor(pShannon$data$Batch, levels=newSTorder)
@@ -117,7 +117,7 @@ pChao <- plot_richness(ps_0, x="Batch", measures=c("Chao1")) +
   geom_boxplot(outlier.shape = NA) + 
   geom_jitter(aes(color = Batch), position = position_jitterdodge(dodge.width = 0.65, jitter.width = 0.1, jitter.height = 0.1))+
   theme_classic() + theme(legend.position = "none", strip.background = element_blank(), axis.text.x.bottom = element_text(angle = 0), axis.text.x = element_text(size = 14), axis.title.y = element_blank()) +
-  stat_compare_means(label= "p.signif", comparisons = my_comparisons, label.y = c(390, 405, 390))
+  stat_compare_means(label= "p.signif", comparisons = my_comparisons)
 #Re-arranging the order of the figure, controls first
 pChao$data$Batch <- as.character(pChao$data$Batch)
 pChao$data$Batch <- factor(pChao$data$Batch, levels=newSTorder)
@@ -128,11 +128,191 @@ pChao+ labs(color = "Batch")
 pFisher <- plot_richness(ps_0, x="Batch", measures=c("Fisher")) +
   geom_boxplot(outlier.shape = NA) +geom_jitter(aes(color = Batch), position = position_jitterdodge(dodge.width = 0.65, jitter.width = 0.1, jitter.height = 0.1))+
   theme_classic() + theme(legend.position = "none", strip.background = element_blank(), axis.text.x.bottom = element_text(angle = 0), axis.text.x = element_text(size = 14), axis.title.y = element_text(size = 16)) +
-  stat_compare_means(label= "p.signif", comparisons = my_comparisons, label.y = c(57, 60, 57))
+  stat_compare_means(label= "p.signif", comparisons = my_comparisons)
 pFisher$data$Batch <- as.character(pFisher$data$Batch)
 pFisher$data$Batch <- factor(pFisher$data$Batch, levels=newSTorder)
 pFisher$layers<-pFisher$layers[-1]
 pFisher+ labs(color = "Batch")
+
+library(gridExtra)
+library(grid)
+library(ggplot2)
+library(lattice)
+grid.arrange(pFisher, pChao, pShannon, pObserved,nrow = 1)
+```
+
+#Alpha Diversity B1
+```{r Alpha Diversity batch}
+ps_B1 <- prune_samples(sample_data(ps_0)$Batch == "B1", ps_0)
+newSTorder = c("Control", "Hiperammonemic")
+my_comparisons <- list( c("Control", "Hiperammonemic"))
+library(ggsignif)
+#Observed
+pObserved <- plot_richness(ps_B1, x="Group", measures=c("Observed"))+
+  geom_boxplot() + 
+  geom_jitter(aes(color = Group), position = position_jitterdodge(dodge.width = 0.65, jitter.width = 0.1, jitter.height = 0.1))+
+  theme_classic() + theme( legend.position = "none", strip.background = element_blank(), axis.text.x.bottom = element_text(angle = 0), axis.text.x = element_text(size = 10), axis.title.y = element_blank()) + 
+  stat_compare_means(label= "p.signif", comparisons = my_comparisons)
+#Re-arranging the order of the figure, controls first
+pObserved$data$Group <- as.character(pObserved$data$Group)
+pObserved$data$Group <- factor(pObserved$data$Group, levels=newSTorder)
+pObserved$layers<-pObserved$layers[-1]
+pObserved+ labs(color = "Group")
+
+#Shannon
+pShannon <- plot_richness(ps_B1, x="Group", measures=c("Shannon")) +
+  geom_boxplot(outlier.shape = NA) + 
+  geom_jitter(aes(color = Group), position = position_jitterdodge(dodge.width = 0.65, jitter.width = 0.1, jitter.height = 0.1))+
+  theme_classic() + theme(legend.position = "none",strip.background = element_blank(), axis.text.x.bottom = element_text(angle = 0), axis.text.x = element_text(size = 10), axis.title.y = element_blank()) +
+  stat_compare_means(label= "p.signif", comparisons = my_comparisons)
+#Re-arranging the order of the figure, controls first
+pShannon$data$Group <- as.character(pShannon$data$Group)
+pShannon$data$Group <- factor(pShannon$data$Group, levels=newSTorder)
+pShannon$layers<-pShannon$layers[-1]
+pShannon+ labs(color = "Group")
+
+
+#Chao1
+pChao <- plot_richness(ps_B1, x="Group", measures=c("Chao1")) +
+  geom_boxplot(outlier.shape = NA) + 
+  geom_jitter(aes(color = Group), position = position_jitterdodge(dodge.width = 0.65, jitter.width = 0.1, jitter.height = 0.1))+
+  theme_classic() + theme(legend.position = "none", strip.background = element_blank(), axis.text.x.bottom = element_text(angle = 0), axis.text.x = element_text(size = 10), axis.title.y = element_blank()) +
+  stat_compare_means(label= "p.signif", comparisons = my_comparisons)
+#Re-arranging the order of the figure, controls first
+pChao$data$Group <- as.character(pChao$data$Group)
+pChao$data$Group <- factor(pChao$data$Group, levels=newSTorder)
+pChao$layers<-pChao$layers[-1]
+pChao+ labs(color = "Group")
+
+#Fisher
+pFisher <- plot_richness(ps_B1, x="Group", measures=c("Fisher")) +
+  geom_boxplot(outlier.shape = NA) +geom_jitter(aes(color = Group), position = position_jitterdodge(dodge.width = 0.65, jitter.width = 0.1, jitter.height = 0.1))+
+  theme_classic() + theme(legend.position = "none", strip.background = element_blank(), axis.text.x.bottom = element_text(angle = 0), axis.text.x = element_text(size = 10), axis.title.y = element_text(size = 16)) +
+  stat_compare_means(label= "p.signif", comparisons = my_comparisons)
+pFisher$data$Group <- as.character(pFisher$data$Group)
+pFisher$data$Group <- factor(pFisher$data$Group, levels=newSTorder)
+pFisher$layers<-pFisher$layers[-1]
+pFisher+ labs(color = "Group")
+
+library(gridExtra)
+library(grid)
+library(ggplot2)
+library(lattice)
+grid.arrange(pFisher, pChao, pShannon, pObserved,nrow = 1)
+```
+
+#Alpha Diversity B2
+```{r Alpha Diversity batch}
+ps_B2 <- prune_samples(sample_data(ps_0)$Batch == "B2", ps_0)
+newSTorder = c("Control", "Hiperammonemic")
+my_comparisons <- list( c("Control", "Hiperammonemic"))
+library(ggsignif)
+#Observed
+pObserved <- plot_richness(ps_B2, x="Group", measures=c("Observed"))+
+  geom_boxplot() + 
+  geom_jitter(aes(color = Group), position = position_jitterdodge(dodge.width = 0.65, jitter.width = 0.1, jitter.height = 0.1))+
+  theme_classic() + theme( legend.position = "none", strip.background = element_blank(), axis.text.x.bottom = element_text(angle = 0), axis.text.x = element_text(size = 10), axis.title.y = element_blank()) + 
+  stat_compare_means(label= "p.signif", comparisons = my_comparisons)
+#Re-arranging the order of the figure, controls first
+pObserved$data$Group <- as.character(pObserved$data$Group)
+pObserved$data$Group <- factor(pObserved$data$Group, levels=newSTorder)
+pObserved$layers<-pObserved$layers[-1]
+pObserved+ labs(color = "Group")
+
+#Shannon
+pShannon <- plot_richness(ps_B2, x="Group", measures=c("Shannon")) +
+  geom_boxplot(outlier.shape = NA) + 
+  geom_jitter(aes(color = Group), position = position_jitterdodge(dodge.width = 0.65, jitter.width = 0.1, jitter.height = 0.1))+
+  theme_classic() + theme(legend.position = "none",strip.background = element_blank(), axis.text.x.bottom = element_text(angle = 0), axis.text.x = element_text(size = 10), axis.title.y = element_blank()) +
+  stat_compare_means(label= "p.signif", comparisons = my_comparisons)
+#Re-arranging the order of the figure, controls first
+pShannon$data$Group <- as.character(pShannon$data$Group)
+pShannon$data$Group <- factor(pShannon$data$Group, levels=newSTorder)
+pShannon$layers<-pShannon$layers[-1]
+pShannon+ labs(color = "Group")
+
+
+#Chao1
+pChao <- plot_richness(ps_B2, x="Group", measures=c("Chao1")) +
+  geom_boxplot(outlier.shape = NA) + 
+  geom_jitter(aes(color = Group), position = position_jitterdodge(dodge.width = 0.65, jitter.width = 0.1, jitter.height = 0.1))+
+  theme_classic() + theme(legend.position = "none", strip.background = element_blank(), axis.text.x.bottom = element_text(angle = 0), axis.text.x = element_text(size = 10), axis.title.y = element_blank()) +
+  stat_compare_means(label= "p.signif", comparisons = my_comparisons)
+#Re-arranging the order of the figure, controls first
+pChao$data$Group <- as.character(pChao$data$Group)
+pChao$data$Group <- factor(pChao$data$Group, levels=newSTorder)
+pChao$layers<-pChao$layers[-1]
+pChao+ labs(color = "Group")
+
+#Fisher
+pFisher <- plot_richness(ps_B2, x="Group", measures=c("Fisher")) +
+  geom_boxplot(outlier.shape = NA) +geom_jitter(aes(color = Group), position = position_jitterdodge(dodge.width = 0.65, jitter.width = 0.1, jitter.height = 0.1))+
+  theme_classic() + theme(legend.position = "none", strip.background = element_blank(), axis.text.x.bottom = element_text(angle = 0), axis.text.x = element_text(size = 10), axis.title.y = element_text(size = 16)) +
+  stat_compare_means(label= "p.signif", comparisons = my_comparisons)
+pFisher$data$Group <- as.character(pFisher$data$Group)
+pFisher$data$Group <- factor(pFisher$data$Group, levels=newSTorder)
+pFisher$layers<-pFisher$layers[-1]
+pFisher+ labs(color = "Group")
+
+library(gridExtra)
+library(grid)
+library(ggplot2)
+library(lattice)
+grid.arrange(pFisher, pChao, pShannon, pObserved,nrow = 1)
+```
+
+#Alpha Diversity B3
+```{r Alpha Diversity batch}
+ps_B3 <- prune_samples(sample_data(ps_0)$Batch == "B3", ps_0)
+newSTorder = c("Control", "Hiperammonemic")
+my_comparisons <- list( c("Control", "Hiperammonemic"))
+library(ggsignif)
+#Observed
+pObserved <- plot_richness(ps_B3, x="Group", measures=c("Observed"))+
+  geom_boxplot() + 
+  geom_jitter(aes(color = Group), position = position_jitterdodge(dodge.width = 0.65, jitter.width = 0.1, jitter.height = 0.1))+
+  theme_classic() + theme( legend.position = "none", strip.background = element_blank(), axis.text.x.bottom = element_text(angle = 0), axis.text.x = element_text(size = 10), axis.title.y = element_blank()) + 
+  stat_compare_means(label= "p.signif", comparisons = my_comparisons)
+#Re-arranging the order of the figure, controls first
+pObserved$data$Group <- as.character(pObserved$data$Group)
+pObserved$data$Group <- factor(pObserved$data$Group, levels=newSTorder)
+pObserved$layers<-pObserved$layers[-1]
+pObserved+ labs(color = "Group")
+
+#Shannon
+pShannon <- plot_richness(ps_B3, x="Group", measures=c("Shannon")) +
+  geom_boxplot(outlier.shape = NA) + 
+  geom_jitter(aes(color = Group), position = position_jitterdodge(dodge.width = 0.65, jitter.width = 0.1, jitter.height = 0.1))+
+  theme_classic() + theme(legend.position = "none",strip.background = element_blank(), axis.text.x.bottom = element_text(angle = 0), axis.text.x = element_text(size = 10), axis.title.y = element_blank()) +
+  stat_compare_means(label= "p.signif", comparisons = my_comparisons)
+#Re-arranging the order of the figure, controls first
+pShannon$data$Group <- as.character(pShannon$data$Group)
+pShannon$data$Group <- factor(pShannon$data$Group, levels=newSTorder)
+pShannon$layers<-pShannon$layers[-1]
+pShannon+ labs(color = "Group")
+
+
+#Chao1
+pChao <- plot_richness(ps_B3, x="Group", measures=c("Chao1")) +
+  geom_boxplot(outlier.shape = NA) + 
+  geom_jitter(aes(color = Group), position = position_jitterdodge(dodge.width = 0.65, jitter.width = 0.1, jitter.height = 0.1))+
+  theme_classic() + theme(legend.position = "none", strip.background = element_blank(), axis.text.x.bottom = element_text(angle = 0), axis.text.x = element_text(size = 10), axis.title.y = element_blank()) +
+  stat_compare_means(label= "p.signif", comparisons = my_comparisons)
+#Re-arranging the order of the figure, controls first
+pChao$data$Group <- as.character(pChao$data$Group)
+pChao$data$Group <- factor(pChao$data$Group, levels=newSTorder)
+pChao$layers<-pChao$layers[-1]
+pChao+ labs(color = "Group")
+
+#Fisher
+pFisher <- plot_richness(ps_B3, x="Group", measures=c("Fisher")) +
+  geom_boxplot(outlier.shape = NA) +geom_jitter(aes(color = Group), position = position_jitterdodge(dodge.width = 0.65, jitter.width = 0.1, jitter.height = 0.1))+
+  theme_classic() + theme(legend.position = "none", strip.background = element_blank(), axis.text.x.bottom = element_text(angle = 0), axis.text.x = element_text(size = 10), axis.title.y = element_text(size = 16)) +
+  stat_compare_means(label= "p.signif", comparisons = my_comparisons)
+pFisher$data$Group <- as.character(pFisher$data$Group)
+pFisher$data$Group <- factor(pFisher$data$Group, levels=newSTorder)
+pFisher$layers<-pFisher$layers[-1]
+pFisher+ labs(color = "Group")
 
 library(gridExtra)
 library(grid)

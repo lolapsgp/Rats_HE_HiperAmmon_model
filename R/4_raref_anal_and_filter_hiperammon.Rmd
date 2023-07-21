@@ -43,16 +43,18 @@ pSeqDepth + facet_wrap(~Batch)
 ```
 
 
-#```{r Removing the one that does not arrive to saturation (=0 all arrive to saturation)}
-#library(vegan)
-#S <- specnumber(as.data.frame(t(otu_table(ps_filtered1)))) # observed number of species
-#(raremax <- min(rowSums(as.data.frame(t(otu_table(ps_filtered1))))))
-#Srare <- rarefy(t(as.data.frame(otu_table(ps_filtered1))), raremax)
-#plot(S, Srare, xlab = "Observed No. of Species", ylab = "Rarefied No. of Species")
-#abline(0, 1)
-#rarecurve(as.data.frame(t(otu_table(ps_filtered1))), step = 20, sample = raremax, col = "black", cex = 0.6)
-#saveRDS(ps_filtered1, "~/Documents/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/outputs/ps_filtered1.Rds")
-#```
+```{r Removing the one that does not arrive to saturation (=0 all arrive to saturation)}
+ps_filtered2<-prune_samples(names(which(sample_sums(ps_filtered1) >= 3000)), ps_filtered1)
+ps_filtered2
+library(vegan)
+S <- specnumber(as.data.frame(t(otu_table(ps_filtered2)))) # observed number of species
+(raremax <- min(rowSums(as.data.frame(t(otu_table(ps_filtered2))))))
+Srare <- rarefy(t(as.data.frame(otu_table(ps_filtered2))), raremax)
+plot(S, Srare, xlab = "Observed No. of Species", ylab = "Rarefied No. of Species")
+abline(0, 1)
+rarecurve(as.data.frame(t(otu_table(ps_filtered2))), step = 20, sample = raremax, col = "black", cex = 0.6)
+saveRDS(ps_filtered2, "~/Documents/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/outputs/ps_filtered2_intermediate.Rds")
+```
 
 #Seq depth groups wrap
 ```{r exploration of the data}
@@ -67,12 +69,11 @@ ggplot(sdt, aes(Quant_DNA, TotalReads, color = as.factor(Batch))) +
     geom_point(size = 5) + 
     geom_smooth(method = lm) +
     ggtitle("Sequencing Depth vs. DNAquant") +
-    scale_y_log10() +
-    facet_grid(Batch ~ .)
+    scale_y_log10() 
 ```
 
 ```{r tree plot}
-plot_tree(ps_filtered1, size = "Abundance",
+plot_tree(ps_filtered2, size = "Abundance",
           color = "Group",
           justify = "yes please", 
           ladderize = "left") +
@@ -83,16 +84,16 @@ plot_tree(ps_filtered1, size = "Abundance",
 ```{r rarefaction}
 # keep result reproductive
  set.seed(321)
- ps.rarefied = rarefy_even_depth(ps_filtered1, rngseed=1, replace=F)
+ ps.rarefied = rarefy_even_depth(ps_filtered2, rngseed=1, replace=F)
  ps.rarefied
  saveRDS(ps.rarefied, "~/Documents/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/outputs/ps.rarefied.Rds")
 ```
 
 ###Exploration
 ```{r exploration for filteringtaxa}
-tdt = data.table(tax_table(ps_filtered1),
-                 TotalCounts = taxa_sums(ps_filtered1),
-                 OTU = taxa_names(ps_filtered1))
+tdt = data.table(tax_table(ps_filtered2),
+                 TotalCounts = taxa_sums(ps_filtered2),
+                 OTU = taxa_names(ps_filtered2))
 ggplot(tdt, aes(TotalCounts)) + 
     geom_histogram() + 
     ggtitle("Histogram of Total Counts")
@@ -120,13 +121,6 @@ pCumSum
 pCumSum + xlim(0, 100)
 ```
 
-```{r tree plot}
-plot_tree(ps_filtered1, size = "Abundance",
-          color = "Type",
-          justify = "yes please", 
-          ladderize = "left") +
-    scale_size_continuous(range = c(1, 3))
-```
 
 #2nd taxa filtering: Remove low prevalent taxa
 ###For AphaDiv (keeping singletons)
@@ -134,7 +128,7 @@ It is important to not use filtered data because many richness estimates are mod
 Moreover, we usually not using normalized data because we want to assess the diversity on the raw data and we are not comparing samples to each other but only assessing diversity within each sample.
 ```{r tree plot}
  # Remove samples with less than MINREADS from phyloseq object
-ps_0 <- prune_taxa(taxa_sums(ps_filtered1) > 0, ps_filtered1)
+ps_0 <- prune_taxa(taxa_sums(ps_filtered2) > 0, ps_filtered2)
 # merge all taxa that are detected rare
 total_samples <- phyloseq::nsamples(ps_0)
 ps_0
@@ -145,25 +139,25 @@ saveRDS(ps_0, "~/Documents/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/outputs
 ```{r tree plot}
 library(microbiome)
 ##Create a prevalence dataframe 
-Prevdf<- apply(X = otu_table(ps_filtered1),
+Prevdf<- apply(X = otu_table(ps_filtered2),
                MARGIN = 1,
                FUN = function(x){sum(x > 0)})
 
 ##Add taxonomy and total read counts to this data.frame
 Prevdf<- data.frame(Prevalence = Prevdf,
-                    TotalAbundance = taxa_sums(ps_filtered1),
-                    tax_table(ps_filtered1))
+                    TotalAbundance = taxa_sums(ps_filtered2),
+                    tax_table(ps_filtered2))
 
 plyr::ddply(Prevdf, "Phylum", function(df1){
   data.frame(mean_prevalence=mean(df1$Prevalence),total_abundance=sum(df1$TotalAbundance,na.rm = T),stringsAsFactors = F)
 })
 
-ggplot(Prevdf, aes(TotalAbundance, Prevalence / nsamples(ps_filtered1),color=Phylum)) +
+ggplot(Prevdf, aes(TotalAbundance, Prevalence / nsamples(ps_filtered2),color=Phylum)) +
   geom_hline(yintercept = 0.1, alpha = 2, linetype = 2) + geom_point(size = 2, alpha = 0.7) +
   scale_x_log10() +  xlab("Log 10 Total Reads") + ylab("Prevalence [Prop. of Samples]") +
   theme_bw()+
   facet_wrap(~Phylum) + theme(legend.position="none")
-ggplot(Prevdf, aes(TotalAbundance, Prevalence / nsamples(ps_filtered1),color=Phylum)) +
+ggplot(Prevdf, aes(TotalAbundance, Prevalence / nsamples(ps_filtered2),color=Phylum)) +
     geom_hline(yintercept = 0.1, alpha = 2, linetype = 2) + geom_point(size = 2, alpha = 0.7) +
     scale_x_log10() +  xlab("Log 10 Total Reads") + ylab("Prevalence [Prop. of Samples]") +
     theme_bw()+
@@ -171,8 +165,8 @@ ggplot(Prevdf, aes(TotalAbundance, Prevalence / nsamples(ps_filtered1),color=Phy
 
 #Remove low prevalent ASVs (This data is used for differential abundance analysis)
 ##Remove ASVs that do not show more than 5 times in more than 10% of the samples
-wh0 <- genefilter_sample(ps_filtered1, filterfun_sample(function(x) x > 5), A=0.1*nsamples(ps_filtered1))
-ps_filtered2<- prune_taxa(wh0, ps_filtered1)
+wh0 <- genefilter_sample(ps_filtered2, filterfun_sample(function(x) x > 5), A=0.1*nsamples(ps_filtered1))
+ps_filtered2<- prune_taxa(wh0, ps_filtered2)
 hist(readcount(ps_filtered2))
 ps_filtered2
 saveRDS(ps_filtered2, "~/Documents/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/outputs/ps_filtered2.Rds")

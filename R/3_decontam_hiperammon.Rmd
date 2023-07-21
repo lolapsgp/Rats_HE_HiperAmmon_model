@@ -33,7 +33,8 @@ saveRDS(contamdf.freq, "~/Documents/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_mode
 table(contamdf.freq$contaminant)
 head(which(contamdf.freq$contaminant))
 ```
-219  405  519  747  755 1053 1127 1465
+294 438 591 645 653 683 831 942
+
 In our phyloseq object, "Sample_type" is the sample variable that holds the negative control information. We’ll summarize that data as a logical variable, with TRUE for control samples, as that is the form required by isContaminant.
 #Identify Contaminants - Prevalence
 ```{r prevalence}
@@ -53,21 +54,29 @@ df.pa <- data.frame(pa.pos=taxa_sums(ps.pa.pos), pa.neg=taxa_sums(ps.pa.neg),
                       contaminant=contamdf.prev05$contaminant)
 ggplot(data=df.pa, aes(x=pa.neg, y=pa.pos, color=contaminant)) + geom_point() +
   xlab("Prevalence (Negative Controls)") + ylab("Prevalence (True Samples)")
+
+which(contamdf.prev05$contaminant)
+#[1] 76
 ```
 
 The dashed black line of the plots shows the model of a noncontaminant sequence feature for which frequency is expected to be independent of the input DNA concentration. The red line shows the model of a contaminant sequence feature, for which frequency is expected to be inversely proportional to input DNA concentration, as contaminating DNA will make up a larger fraction of the total DNA in samples with very little total DNA. 
 ```{r plots}
+#To check the ASVs present in the pool sample
+pool_phylo <- subset_samples(ps, Sample_type == "Pool_control")
+pool_phylo <- prune_taxa(taxa_sums(pool_phylo) > 0, pool_phylo)
+View(tax_table(pool_phylo))
+
 #Identificados por prev y manualmente
-plot_frequency(ps, taxa_names(ps)[c(51,105, 851, 914, 1421, 1422)], conc="Quant_DNA") + 
+plot_frequency(ps, taxa_names(ps)[c(76, 282, 589, 879, 922)], conc="Quant_DNA") + 
     xlab("DNA Concentration measured by Qubit")
-View(tax_table(ps)[c(51,105, 851, 914, 1421, 1422)])
+View(tax_table(ps)[c(76, 282, 589, 879, 922)])
 
 #Identificados por freqencia
 set.seed(321)
 plot_frequency(ps, taxa_names(ps)[sample(which(contamdf.freq$contaminant))], conc="Quant_DNA") +
     xlab("DNA Concentration (PicoGreen fluorescent intensity)")
 
-View(tax_table(ps)[c(219,  405,  519,  747,  755, 1053, 1127, 1465)])
+View(tax_table(ps)[c(294, 438, 591, 645, 653, 683, 831, 942)])
 
 ```
 
@@ -86,7 +95,7 @@ saveRDS(ps.noncontamprev, "~/Documents/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_m
 
 Using the information that the decontam package gave me, I took the tax tables of what had been identified as contaminants and I made a deep search on the habitats of these taxa. Finally, I selected which ones were correctly identifies as contaminants and now we will create a phyloseq object without the contaminant taxa.  
 ```{r phyloseq ok}
-contaminants<-c("ASV914", "ASV1421")
+contaminants<-c("ASV282", "ASV589", "ASV879", "ASV922", "ASV653")
 goodTaxa <- setdiff(taxa_names(ps), contaminants)
 ps.noncontam <- prune_taxa(goodTaxa, ps)
 ps.noncontam <- subset_taxa(ps.noncontam, (Order!="Chloroplast") | is.na(Order))

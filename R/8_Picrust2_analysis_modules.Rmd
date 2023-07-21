@@ -1,0 +1,113 @@
+---
+title: "8_Picrust2_analysis_modules"
+output: html_document
+date: "2023-07-21"
+---
+
+```{r libraries and data}
+library(omixerRpm)
+library(readr)
+library(tidyverse)
+## Not run: 
+# read a functional profile matrix into R or create it inside R. Please note that row.names should not be used while reading the matrix. 
+# dat <- read.table("~/Documents/Lola/CIPF_2018/Rats_HE_CCL4model/input/pred_metagenome_unstrat.tsv", header=T, sep="\t")
+# Run the module mapping on the loaded table.
+# mods <- rpm(dat, minimum.coverage=0.3, annotation = 1)
+
+# Load the mapping database (v.1.08 created by me adding modules from 104 to 109)
+#I could not load it like that so I copied the files in "/home/lginerp/R/x86_64-pc-linux-gnu-library/4.1/omixerRpm/extdata" and then:
+listDB()
+db <- loadDB("GMMs.v1.08")
+
+# alternatively run the mapping without loading the table into R.
+# Use 1 for KEGG KO annotation only or 2 for taxonomic followed by KO annotation.
+mods <- rpm("~/Documents/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/input_ratshiperammon/KO_metagenome_out_hiperammon/pred_metagenome_unstrat.tsv", minimum.coverage=0.3, annotation = 1, module.db = db)
+# get the name of the first predicted module
+getNames(db, mods@annotation[1,]) 
+
+GMMs<-data.frame(mods@abundance) 
+names<-as.data.frame(mods@annotation)
+rownames(GMMs)<-names$Module
+long_names<-as.data.frame(mods@db@module.names)
+GMMs$names = long_names$V2[match(rownames(GMMs),rownames(long_names))]
+
+#Write the file to a csv to save it. 
+write.csv(GMMs, file = "~/Documents/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/outputs/GMMs.csv")
+```
+
+```{r Librerias phyloseq}
+library(ggplot2)
+library(dplyr)
+library(data.table)
+library(readxl)
+library(phyloseq)
+library(vegan)
+library(microbiome)
+
+```
+
+
+
+```{r Tax Clean}
+
+metadata <- read_excel("~/Documents/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/metadata_hiperammon.xlsx")
+View(metadata)
+
+ otu <- subset(GMMs, select = -c(names))
+
+ OTU = otu_table(as.matrix(otu), taxa_are_rows = TRUE)
+ TAX = tax_table(as.matrix(long_names))
+ SAMPLE <- sample_data(metadata)
+ 
+ #Como me daba error hetenido que especificar qué datos son qué columnas
+ rownames(SAMPLE) <-metadata$SampleID
+
+ 
+ # merge the data
+ picrust_res <- phyloseq(OTU, TAX, SAMPLE)
+ picrust_res
+ saveRDS(picrust_res, file = "~/Documents/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/outputs/picrust_res.Rds")
+```
+
+##MetadeconfoundR
+```{r MetadeconfoundR heatmaps}
+picrust_res <- readRDS("/fast/AG_Forslund/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/outputs/picrust_res.Rds")
+library(metadeconfoundR)
+library(dplyr)
+ps.rel<-microbiome::transform(picrust_res, "compositional")
+Meta_Species <- as.data.frame((otu_table(ps.rel)))
+long_names<-as.data.frame(tax_table(picrust_res))
+rownames(Meta_Species)= long_names$V2[match(rownames(Meta_Species),rownames(long_names))]
+Meta_Species<-t(Meta_Species)
+
+metadata_R <- subset(metadata, select = -c(SampleID, Week, FisabioID, GABAa1, GABAa5, Ymaze_trialstolearn, OLM, IL1_b))
+metadata_R <- metadata_R %>% mutate(Batch = ifelse(Batch=="T5",1,0))
+metadata_R <- metadata_R %>% mutate(Antibiotic = ifelse(Antibiotic=="Yes",1,0))
+metadata_R <- metadata_R %>% mutate(Treated_CCL = ifelse(Treated_CCL=="Yes",1,0))
+metadata_R <- as.data.frame(metadata_R)
+rownames(metadata_R) <- (metadata$SampleID)
+metadata_R <- metadata_R[ order(row.names(metadata_R)), ]
+Meta_Species <- Meta_Species[ order(row.names(Meta_Species)), ]
+
+# check correct ordering
+all(rownames(metadata_R) == rownames(Meta_Species))
+## [1] TRUE
+all(order(rownames(metadata_R)) == order(rownames(Meta_Species)))
+## [1] TRUE
+Meta_Species<- as.data.frame(Meta_Species)
+Output1 <- MetaDeconfound(featureMat = as.data.frame(Meta_Species),
+                                 metaMat = as.data.frame(metadata_R), nnodes = 10)
+                                 
+Output2_batch <- MetaDeconfound(featureMat = as.data.frame(Meta_Species),
+                                     metaMat = as.data.frame(metadata_R), nnodes = 10, randomVar = list("+ (1|Batch)",
+                                                                                        c("Batch")))
+View(Output1)
+View(Output2_batch)
+
+left <- BuildHeatmap(Output1)
+right <- BuildHeatmap(Output2_batch)
+plot(left)
+plot(right)
+saveRDS(Output1, "/fast/AG_Forslund/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/outputs/metadec1_picrust.Rds")
+saveRDS(Output2_batch, "/fast/AG_Forslund/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/outputs/metadec2_batch_picrust.Rds")
+```
