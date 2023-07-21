@@ -112,8 +112,8 @@ View(Output2_batch)
 left <- BuildHeatmap(Output1)
 right <- BuildHeatmap(Output2_batch)
 #cannot plot it because there is only one variale significant (group)
-saveRDS(Output1, "/fast/AG_Forslund/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/output/Output1_metadec.Rds")
-saveRDS(Output2_batch, "/fast/AG_Forslund/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/output/Output2_batch_all.Rds")
+saveRDS(Output1, "/fast/AG_Forslund/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/outputs/Output1_metadec.Rds")
+saveRDS(Output2_batch, "/fast/AG_Forslund/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/outputs/Output2_batch_all.Rds")
 
 ```
 

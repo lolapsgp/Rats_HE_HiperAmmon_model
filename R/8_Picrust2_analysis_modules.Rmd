@@ -77,13 +77,12 @@ library(dplyr)
 ps.rel<-microbiome::transform(picrust_res, "compositional")
 Meta_Species <- as.data.frame((otu_table(ps.rel)))
 long_names<-as.data.frame(tax_table(picrust_res))
+metadata<-data.frame(sample_data(picrust_res))
 rownames(Meta_Species)= long_names$V2[match(rownames(Meta_Species),rownames(long_names))]
 Meta_Species<-t(Meta_Species)
 
-metadata_R <- subset(metadata, select = -c(SampleID, Week, FisabioID, GABAa1, GABAa5, Ymaze_trialstolearn, OLM, IL1_b))
-metadata_R <- metadata_R %>% mutate(Batch = ifelse(Batch=="T5",1,0))
-metadata_R <- metadata_R %>% mutate(Antibiotic = ifelse(Antibiotic=="Yes",1,0))
-metadata_R <- metadata_R %>% mutate(Treated_CCL = ifelse(Treated_CCL=="Yes",1,0))
+metadata_R <- subset(metadata, select = -c(SampleID, Sample_type))
+metadata_R <- metadata_R %>% mutate(Group = ifelse(Group=="Hiperammonemic",1,0))
 metadata_R <- as.data.frame(metadata_R)
 rownames(metadata_R) <- (metadata$SampleID)
 metadata_R <- metadata_R[ order(row.names(metadata_R)), ]
@@ -106,8 +105,154 @@ View(Output2_batch)
 
 left <- BuildHeatmap(Output1)
 right <- BuildHeatmap(Output2_batch)
+#urea degradation, sucrose degradation I, pyruvate dehydrogenase complex, 4-aminobutyrate degradation
+
 plot(left)
 plot(right)
 saveRDS(Output1, "/fast/AG_Forslund/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/outputs/metadec1_picrust.Rds")
 saveRDS(Output2_batch, "/fast/AG_Forslund/Lola/Datos_CIPF_2023/Rats_HE_HiperAmmon_model/outputs/metadec2_batch_picrust.Rds")
+```
+
+```{r plotting}
+get_latest_annotation <- function(phyloseq_obj) {
+  tax_table <- phyloseq_obj@tax_table %>%
+    as.data.frame() %>%
+    rownames_to_column('ASV') %>%
+    as_tibble() %>%
+    tidyr::gather('Rank', 'Value', -ASV) %>%
+    nest(data = -ASV) %>%
+    mutate(TaxaID = map_chr(data, function(x) {
+      x %>%
+        dplyr::filter(!is.na(Value)) %>%
+        magrittr::use_series(Value) %>%
+        tail(1)
+    })) %>%
+    mutate(TaxaUp = map_chr(data, function(x) {
+      x %>%
+        dplyr::filter(!is.na(Value)) %>%
+        magrittr::use_series(Value) %>%
+        tail(2) %>% head(1)
+    })) %>%
+    mutate(TaxaID = paste(ASV, TaxaID)) %>%
+    dplyr::select(-c(data, TaxaUp))
+  
+  return(tax_table)
+}
+
+##Usage latest_annotations <- get_latest_annotation(phyloseq_obj)
+latest_annotations <- get_latest_annotation(picrust_res)
+latest_annotations<-as.data.frame(picrust_res)
+
+raw_p<- Output2_batch[1]
+corr_p<- Output2_batch[2]
+effect_size <- Output2_batch[3]
+status<- Output2_batch[4]
+raw_p_df<- data.frame(raw_p$Ps)
+raw_p_df<- raw_p_df %>% subset(select = c(Group)) %>%
+    rownames_to_column()%>%
+    mutate(p_Group=Group)%>%
+    select(!c(Group))
+
+corr_p_df<- data.frame(corr_p$Qs)
+corr_p_df<- corr_p_df %>%subset(select = c(Group)) %>%
+    rownames_to_column()%>%
+    mutate(corr_Group=Group)%>%
+    select(!c(Group))
+
+
+effect_size_df<- data.frame(effect_size$Ds)
+effect_size_df<- effect_size_df %>% subset(select = c(Group)) %>%
+    rownames_to_column()%>%
+    mutate(effect_Group=Group)%>%
+    select(!c(Group))
+
+
+status_df<- data.frame(status$status)
+status_df<- status_df %>% subset(select = c(Group)) %>%
+    rownames_to_column()%>%
+    mutate(status_Group=Group)%>%
+    select(!c(Group))
+
+#create two-column-dataframe containing corresponding "human-readable" names to the "machine-readable" feature names used as row.names in metaDeconfOutput.  
+taxtable <- latest_annotations
+taxtable$rowname <- latest_annotations$ASV
+taxtable<- cbind(rowname=taxtable$rowname,subset(taxtable,select = -c(rowname)))
+
+effect_table <- raw_p_df%>%
+    full_join(corr_p_df, by="rowname")%>%
+    full_join(effect_size_df, by="rowname")%>%
+    full_join(status_df, by="rowname")%>%
+    full_join(taxtable, by="rowname")
+
+# remove the entries which have NS and AD in status
+effect_table_sig <- effect_table%>%
+    filter(status_Group=="OK_nc")
+
+#pivot long format
+
+effect_table_sig_long <- effect_table_sig%>%
+  pivot_longer(cols = starts_with("status"), names_to = "comparison_status", values_to = "status")%>%
+  separate(comparison_status, c("variable" , "Group"), "_")%>%
+  mutate(comparison_status=paste(Group, sep="_"))%>%
+  select(-c(variable, Group))%>%
+  pivot_longer(cols = starts_with("p"), names_to = "comparison_p", values_to = "raw_p")%>%
+  separate(comparison_p, c("variable", "Group"), "_")%>%
+  mutate(comparison_p=paste(Group, sep="_"))%>%
+  select(-c(variable, Group))%>%
+  filter(comparison_p==comparison_status)%>%
+  pivot_longer(cols = starts_with("effect"), names_to = "comparison_effectSize", values_to = "effectSize")%>%
+  separate(comparison_effectSize, c("variable", "Group"), "_")%>%
+  mutate(comparison_effectSize=paste(Group, sep="_"))%>%
+  select(-c(variable, Group))%>%
+  filter(comparison_p==comparison_effectSize)%>%
+  pivot_longer(cols = starts_with("corr"), names_to = "comparison_q", values_to = "corr_p")%>%
+  separate(comparison_q, c("variable", "Group"), "_")%>%
+  mutate(comparison_q=paste(Group, sep="_"))%>%
+  select(-c(variable))%>%
+  filter(comparison_p==comparison_q)%>%
+  select(-c(comparison_q, comparison_effectSize,comparison_status))%>%
+  mutate(fdr= as_factor(case_when(corr_p <= 0.05 ~ "*", corr_p <= 0.01 ~ "**", corr_p <= 0.001 ~ "***", corr_p <= 0.1 ~ ".")))
+
+library(gtools)
+effect_table_sig_long%>%
+    ggplot(aes (x = Group, y = reorder(rowname, effectSize)))+ 
+    geom_point (aes (fill = effectSize, shape = as.factor (sign (effectSize)), size = abs (effectSize), color=(fdr))) +
+    scale_shape_manual (values = c (25, 24)) + 
+    scale_fill_gradient2 (low = "blue", high = "red", mid = "white", midpoint = 0) +
+    scale_color_manual(values=c("gray22","gray1","gray85"))+
+    geom_text (aes (label = stars.pval(corr_p)))+
+    theme_grey() +
+    theme(axis.text.x = element_text(), #angle = 0, hjust = 0, vjust = 1
+          #To remove legend = legend.position = "none"
+          legend.position = "right",axis.text.y = element_text(face = "italic")) + scale_y_discrete(position = "left") + ylab("Functional modules")
+
+#Heatmap
+ggplot(effect_table_sig_long, aes(x = Group, y = reorder(rowname, effectSize))) +
+    # do the heatmap tile coloring based on effect sizes
+    geom_tile(aes(fill = effectSize)) +
+    scale_fill_gradient2 (low = "blue", high = "red", mid = "white", midpoint = 0) +
+    # add significance stars/circles for deconfounded/confounded associations
+    geom_text (aes (label = stars.pval(corr_p)))+
+    guides(color = guide_legend(override.aes = list(shape = c(1,8)) ) ) +
+    
+    # make it pretty
+    theme_classic() +
+    theme(axis.text.x = element_text(size = 7,
+                                     angle = 90,
+                                     hjust = 1,
+                                     vjust = 0.3),
+          axis.text.y = element_text(size = 7,
+                                     angle = 0,
+                                     hjust = 1,
+                                     vjust = 0.35),
+          plot.title.position = "plot",
+          plot.title = element_text(hjust = 0),
+          plot.subtitle=element_text(size=8)) +
+    labs(title="Groups_comp and modules correlation heatmap",
+         subtitle="FDR-values: < 0.001 = ***, < 0.01 = **, < 0.1 = * ",
+         x = "Group comparison (hiperammon=1)",
+         y = "ASVs")
+
+
+
 ```
