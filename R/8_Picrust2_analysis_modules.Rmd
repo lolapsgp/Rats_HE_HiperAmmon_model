@@ -249,7 +249,7 @@ ggplot(effect_table_sig_long, aes(x = Group, y = reorder(rowname, effectSize))) 
           plot.title = element_text(hjust = 0),
           plot.subtitle=element_text(size=8)) +
     labs(title="Groups_comp and modules correlation heatmap",
-         subtitle="FDR-values: < 0.001 = ***, < 0.01 = **, < 0.1 = * ",
+         subtitle="FDR-values: < 0.001 = ***, < 0.01 = **, < 0.05 = *, < 0.1 = . ",
          x = "Group comparison (hiperammon=1)",
          y = "ASVs")
 
