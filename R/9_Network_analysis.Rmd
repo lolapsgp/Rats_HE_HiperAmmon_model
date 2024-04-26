@@ -81,6 +81,7 @@ normMethod = "clr",
 zeroMethod = "multRepl",
 sparsMethod = "t-test",
 verbose = 3,
+dissFunc="unsigned",
 seed = 123456)
 
 props_all <- netAnalyze(net_all, clustMethod = "cluster_fast_greedy")
@@ -99,15 +100,15 @@ plot<-plot(props_all,
      nodeSizeSpread = 5,
      cexNodes = 2,
      hubBorderCol = "black",
-     posCol = "red3", 
-     negCol = "blue",
+     posCol = "darkorange", 
+     negCol = "darkturquoise",
      title1 = "Genus level Network with Pearson correlations", 
      showTitle = TRUE,
      cexTitle = 1.3)
 
 
 legend(0.7, 1.0, cex = 0.80, title = "estimated correlation:",
-       legend = c("+","-"), lty = 1.5, lwd = 2.5, col = c("red3","blue"),
+       legend = c("+","-"), lty = 1.5, lwd = 2.5, col = c("darkorange","darkturquoise"),
        bty = "n", horiz = FALSE, x.intersp = 0.2, y.intersp = 0.5)
 dev.off()  # Close the .svg device
 #Save the plot to svg
@@ -137,6 +138,7 @@ normMethod = "clr",
 zeroMethod = "multRepl",
 sparsMethod = "t-test",
 verbose = 3,
+dissFunc="unsigned",
 seed = 123456)
 
 props_all <- netAnalyze(net_all, clustMethod = "cluster_fast_greedy")
@@ -155,15 +157,15 @@ plot<-plot(props_all,
      nodeSizeSpread = 5,
      cexNodes = 2,
      hubBorderCol = "black",
-     posCol = "red3", 
-     negCol = "blue",
+     posCol = "darkorange", 
+     negCol = "darkturquoise",
      title1 = "Family level Network with Pearson correlations", 
      showTitle = TRUE,
      cexTitle = 1.3)
 
 
 legend(0.7, 1.0, cex = 0.80, title = "estimated correlation:",
-       legend = c("+","-"), lty = 1.5, lwd = 2.5, col = c("red3","blue"),
+       legend = c("+","-"), lty = 1.5, lwd = 2.5, col = c("darkorange","darkturquoise"),
        bty = "n", horiz = FALSE, x.intersp = 0.2, y.intersp = 0.5)
 dev.off()  # Close the .svg device
 #Save the plot to svg
@@ -189,6 +191,7 @@ net_Controls <- netConstruct(data_input,
               zeroMethod = "none",
               sparsMethod = "t-test",
               verbose = 3,
+              dissFunc="unsigned",
               seed = 123456)
 
 props_Controls <- netAnalyze(net_Controls, clustMethod = "cluster_fast_greedy")
@@ -206,7 +209,7 @@ plot<-plot(props_Controls,
      cexNodes = 2,
      hubBorderCol = "black",
      posCol = "darkturquoise", 
-     negCol = "orange",
+     negCol = "darkorange",
      title1 = "Controls:
      Genus level Network with Pearson correlations", 
      showTitle = TRUE,
@@ -214,7 +217,7 @@ plot<-plot(props_Controls,
 
 
 legend(0.7, 1.0, cex = 0.80, title = "estimated correlation:",
-       legend = c("+","-"), lty = 1.5, lwd = 2.5, col = c("darkturquoise","orange"),
+       legend = c("+","-"), lty = 1.5, lwd = 2.5, col = c("darkturquoise","darkorange"),
        bty = "n", horiz = FALSE, x.intersp = 0.2, y.intersp = 0.5)
 dev.off()  # Close the .svg device
 #Save the plot to svg
@@ -240,6 +243,7 @@ net_Controls <- netConstruct(data_input,
               zeroMethod = "none",
               sparsMethod = "t-test",
               verbose = 3,
+              dissFunc="unsigned",
               seed = 123456)
 
 props_Controls <- netAnalyze(net_Controls, clustMethod = "cluster_fast_greedy")
@@ -257,7 +261,7 @@ plot<-plot(props_Controls,
      cexNodes = 2,
      hubBorderCol = "black",
      posCol = "darkturquoise", 
-     negCol = "orange",
+     negCol = "darkorange",
      title1 = "Hyperammonemic:
      Genus level Network with Pearson correlations", 
      showTitle = TRUE,
@@ -265,7 +269,7 @@ plot<-plot(props_Controls,
 
 
 legend(0.7, 1.0, cex = 0.80, title = "estimated correlation:",
-       legend = c("+","-"), lty = 1.5, lwd = 2.5, col = c("darkturquoise","orange"),
+       legend = c("+","-"), lty = 1.5, lwd = 2.5, col = c("darkturquoise","darkorange"),
        bty = "n", horiz = FALSE, x.intersp = 0.2, y.intersp = 0.5)
 dev.off()  # Close the .svg device
 #Save the plot to svg
