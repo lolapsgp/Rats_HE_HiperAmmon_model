@@ -236,7 +236,7 @@ otu_ok <- t(otu)
 
 data_input <- cbind(otu_ok)
 
-net_Controls <- netConstruct(data_input, 
+net_Hyperamm <- netConstruct(data_input, 
               measure = "pearson", 
               taxRank = "Genus",
               normMethod = "none",
@@ -246,11 +246,11 @@ net_Controls <- netConstruct(data_input,
               dissFunc="unsigned",
               seed = 123456)
 
-props_Controls <- netAnalyze(net_Controls, clustMethod = "cluster_fast_greedy")
+props_Hyperamm <- netAnalyze(net_Hyperamm, clustMethod = "cluster_fast_greedy")
 # Save the plot and the legend to an .svg file
 svg("~/Lola/Rats_HE_HiperAmmon_model/outputs/Figures/Network_Hyperammonemic.svg", width = 10, height = 8)  # Specify the file name and dimensions
 par(mfrow = c(1, 1))  # Set the layout to a single plot
-plot<-plot(props_Controls, 
+plot<-plot(props_Hyperamm, 
      nodeColor = "cluster", 
      nodeSize = "eigenvector",
      repulsion = 0.8,
@@ -266,6 +266,111 @@ plot<-plot(props_Controls,
      Genus level Network with Pearson correlations", 
      showTitle = TRUE,
      cexTitle = 1.3)
+
+
+legend(0.7, 1.0, cex = 0.80, title = "estimated correlation:",
+       legend = c("+","-"), lty = 1.5, lwd = 2.5, col = c("darkturquoise","darkorange"),
+       bty = "n", horiz = FALSE, x.intersp = 0.2, y.intersp = 0.5)
+dev.off()  # Close the .svg device
+#Save the plot to svg
+```
+
+
+#SparCC Controls genus network
+```{r SparCC Controls by genus network}
+ps_filtered2 <- readRDS("~/Lola/Rats_HE_HiperAmmon_model/outputs/ps_filtered2.Rds")
+ps_genus <- tax_glom(ps_filtered2, taxrank = "Genus")
+ps_genus_Controls <- subset_samples(ps_genus, Group == "Control")
+otu<-data.frame((otu_table(ps_genus_Controls)))
+latest_annotations <- get_latest_annotation(ps_genus_Controls)
+latest_annotations<-as.data.frame(latest_annotations)
+rownames(otu)<-latest_annotations$TaxaID
+otu_ok <- t(otu) 
+
+data_input <- cbind(otu_ok)
+
+net_Controls <- netConstruct(data_input, 
+                             measure = "sparcc", 
+                             taxRank = "Genus",
+                             normMethod = "clr",
+                             zeroMethod = "none",
+                             sparsMethod = "t-test",
+                             verbose = 3,
+                             dissFunc="unsigned",
+                             seed = 123456)
+
+props_Controls <- netAnalyze(net_Controls, clustMethod = "cluster_fast_greedy")
+# Save the plot and the legend to an .svg file
+svg("~/Lola/Rats_HE_HiperAmmon_model/outputs/Figures/Network_Controls_sparcc.svg", width = 10, height = 8)  # Specify the file name and dimensions
+par(mfrow = c(1, 1))  # Set the layout to a single plot
+plot<-plot(props_Controls, 
+           nodeColor = "cluster", 
+           nodeSize = "eigenvector",
+           repulsion = 0.8,
+           rmSingles = TRUE,
+           labelScale = FALSE,
+           cexLabels = 0.8,
+           nodeSizeSpread = 5,
+           cexNodes = 2,
+           hubBorderCol = "black",
+           posCol = "darkturquoise", 
+           negCol = "darkorange",
+           title1 = "Controls:
+     Genus level Network with SparCC correlations", 
+           showTitle = TRUE,
+           cexTitle = 1.3)
+
+
+legend(0.7, 1.0, cex = 0.80, title = "estimated correlation:",
+       legend = c("+","-"), lty = 1.5, lwd = 2.5, col = c("darkturquoise","darkorange"),
+       bty = "n", horiz = FALSE, x.intersp = 0.2, y.intersp = 0.5)
+dev.off()  # Close the .svg device
+#Save the plot to svg
+```
+
+#SparCCHyperamonemic genus network
+```{r SparCC NMCI by genus network}
+ps_filtered2 <- readRDS("~/Lola/Rats_HE_HiperAmmon_model/outputs/ps_filtered2.Rds")
+ps_genus <- tax_glom(ps_filtered2, taxrank = "Genus")
+ps_genus_Hyperamm <- subset_samples(ps_genus, Group == "Hiperammonemic")
+otu<-data.frame((otu_table(ps_genus_Hyperamm)))
+latest_annotations <- get_latest_annotation(ps_genus_Hyperamm)
+latest_annotations<-as.data.frame(latest_annotations)
+rownames(otu)<-latest_annotations$TaxaID
+otu_ok <- t(otu) 
+
+data_input <- cbind(otu_ok)
+
+net_Hyperamm <- netConstruct(data_input, 
+                             measure = "sparcc", 
+                             taxRank = "Genus",
+                             normMethod = "clr",
+                             zeroMethod = "none",
+                             sparsMethod = "t-test",
+                             verbose = 3,
+                             dissFunc="unsigned",
+                             seed = 123456)
+
+props_Hyperamm <- netAnalyze(net_Hyperamm, clustMethod = "cluster_fast_greedy")
+# Save the plot and the legend to an .svg file
+svg("~/Lola/Rats_HE_HiperAmmon_model/outputs/Figures/Network_Hyperammonemic_sparcc.svg", width = 10, height = 8)  # Specify the file name and dimensions
+par(mfrow = c(1, 1))  # Set the layout to a single plot
+plot<-plot(props_Hyperamm, 
+           nodeColor = "cluster", 
+           nodeSize = "eigenvector",
+           repulsion = 0.8,
+           rmSingles = TRUE,
+           labelScale = FALSE,
+           cexLabels = 0.8,
+           nodeSizeSpread = 5,
+           cexNodes = 2,
+           hubBorderCol = "black",
+           posCol = "darkturquoise", 
+           negCol = "darkorange",
+           title1 = "Hyperammonemic:
+     Genus level Network with SparCC correlations", 
+           showTitle = TRUE,
+           cexTitle = 1.3)
 
 
 legend(0.7, 1.0, cex = 0.80, title = "estimated correlation:",
