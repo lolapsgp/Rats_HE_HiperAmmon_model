@@ -285,6 +285,8 @@ otu<-data.frame((otu_table(ps_genus_Controls)))
 latest_annotations <- get_latest_annotation(ps_genus_Controls)
 latest_annotations<-as.data.frame(latest_annotations)
 rownames(otu)<-latest_annotations$TaxaID
+rownames(otu) <- gsub("^ASV\\d+\\s", "", rownames(otu))
+
 otu_ok <- t(otu) 
 
 data_input <- cbind(otu_ok)
@@ -337,6 +339,7 @@ otu<-data.frame((otu_table(ps_genus_Hyperamm)))
 latest_annotations <- get_latest_annotation(ps_genus_Hyperamm)
 latest_annotations<-as.data.frame(latest_annotations)
 rownames(otu)<-latest_annotations$TaxaID
+rownames(otu) <- gsub("^ASV\\d+\\s", "", rownames(otu))
 otu_ok <- t(otu) 
 
 data_input <- cbind(otu_ok)
@@ -358,10 +361,10 @@ par(mfrow = c(1, 1))  # Set the layout to a single plot
 plot<-plot(props_Hyperamm, 
            nodeColor = "cluster", 
            nodeSize = "eigenvector",
-           repulsion = 1.1,
+           repulsion = 0.8,
            rmSingles = TRUE,
            labelScale = FALSE,
-           cexLabels = 0.8,
+           cexLabels = 1.1,
            nodeSizeSpread = 5,
            cexNodes = 2,
            hubBorderCol = "black",
