@@ -101,6 +101,7 @@ bray_matrix<- ps_limma@otu_table %>%
     vegan::vegdist(method = 'euclidean',
                    diag = TRUE, upper = TRUE)
 metadata_hiper_h<-as.data.frame(sample_data(ps_limma))
+metadata_hiper_h$Group[metadata_hiper_h$Group == "Hiperammonemic"] <- "Hyperammonemic"
 rownames(metadata_hiper_h)<-metadata_hiper_h$SampleID
 Group<-merge(as.data.frame(as.matrix(bray_matrix)), metadata_hiper_h, by="row.names")
 Group<-as.vector(rownames(as.data.frame(as.matrix(bray_matrix))))
@@ -117,7 +118,7 @@ boxplot(permdisp, main="Distance to centroids")
 
 axes<-permdisp$eig[1:3]/sum(permdisp$eig[permdisp$eig > 0]) * 100
 
-plot(permdisp, main="PCoA relative abundance", hull=FALSE, ellipse=TRUE, segments = TRUE, seg.col = c("#F8766D", "#00B0F6"), col = c("#F8766D", "#00B0F6"), label = TRUE, label.cex = 1.2, pch = c(20, 20, 20), seg.lty = c(1), seg.lwd = 1, cex.lab = 1.2, cex.main =1.3, xlab = paste0('PCoA1 14.77%'), ylab = paste0('PCoA2 8.62 %'))
+plot(permdisp, main="PCoA clr", hull=FALSE, ellipse=TRUE, segments = TRUE, seg.col = c("#F8766D", "#00B0F6"), col = c("#F8766D", "#00B0F6"), label = TRUE, label.cex = 1.2, pch = c(20, 20, 20), seg.lty = c(1), seg.lwd = 1, cex.lab = 1.2, cex.main =1.3, xlab = paste0('PCoA1 (14.77%)'), ylab = paste0('PCoA2 (8.62 %)'))
 
 permdisp$eig[1:3]/sum(permdisp$eig[permdisp$eig > 0]) * 100
 #    PCoA1     PCoA2     PCoA3 
